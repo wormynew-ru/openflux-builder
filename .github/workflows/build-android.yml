@@ -1,4 +1,4 @@
-name: Build OpenFlux Android APK
+name: Build OpenFlux Android Client
 
 on:
   workflow_dispatch:
@@ -6,9 +6,6 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-
-    env:
-      GOTOOLCHAIN: local
 
     steps:
       - name: Checkout OpenFlux
@@ -20,23 +17,23 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.12'
+          go-version: '1.23'
 
-      - name: Set up Java JDK
-        uses: actions/setup-java@v4
+      - name: Set up Android NDK
+        uses: nxtcoder/setup-ndk@v1
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          ndk-version: 'r27b'
 
-      - name: Build APK via Gomobile
+      - name: Run build_android.sh
         run: |
-          go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20240501174026-64dd94df5bd5
-          export PATH=$PATH:$(go env GOPATH)/bin
-          gomobile init
-          gomobile build -target=android -androidapi 21 -o OpenFlux-latest.apk .
+          chmod +x build_android.sh
+          ./build_android.sh
 
-      - name: Upload APK
+      - name: Upload Android Build
         uses: actions/upload-artifact@v4
         with:
-          name: OpenFlux-Android-APK
-          path: OpenFlux-latest.apk
+          name: OpenFlux-Android-Client
+          path: |
+            **/*.apk
+            **/*.so
+            openflux*
